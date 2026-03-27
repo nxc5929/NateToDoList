@@ -10,18 +10,18 @@ const SQS_QUEUE_URL = process.env.SQS_QUEUE_URL;
 export const handler = async (event) => {
     console.log('Received event:', JSON.stringify(event, null, 2));
 
-    const method = event.requestContext.httpMethod;
+    const method = event.requestContext.http.httpMethod;
     const path = event.rawPath;
 
     try {
         if (method === 'GET' && path === '/todos') {
             return await getTodos();
         } else if (method === 'POST' && path === '/todos') {
-            const body = JSON.parse(event.body);
+            const body = parseRequestBody(event);
             return await createTodo(body);
         } else if (method === 'PUT' && path.startsWith('/todos/')) {
             const id = path.split('/')[2];
-            const body = JSON.parse(event.body);
+            const body = parseRequestBody(event);
             return await updateTodo(id, body);
         } else if (method === 'DELETE' && path.startsWith('/todos/')) {
             const id = path.split('/')[2];
@@ -42,6 +42,22 @@ export const handler = async (event) => {
         };
     }
 };
+
+function parseRequestBody(event) {
+    if (!event.body) return {};
+
+    let rawBody = event.body;
+    if (event.isBase64Encoded) {
+        rawBody = Buffer.from(rawBody, 'base64').toString('utf8');
+    }
+
+    try {
+        return JSON.parse(rawBody);
+    } catch (err) {
+        console.error('Invalid JSON body:', err);
+        throw new Error('Invalid JSON body');
+    }
+}
 
 async function getTodos() {
     const command = new ScanCommand({ TableName: TABLE_NAME });
