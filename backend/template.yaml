@@ -1,0 +1,105 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Todo List API with SQS integration for printing new todos
+
+Globals:
+  Function:
+    Runtime: nodejs24.x
+    Architectures:
+      - arm64
+    Timeout: 30
+    MemorySize: 256
+    Tags:
+      Project: nate-todo-list
+
+Resources:
+  # Dead-letter queue for failed print messages
+  PrintDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: nate-to-do-list-print-fails
+
+  # SQS queue for new todo items to be printed
+  PrintQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: nate-to-do-list-print
+      VisibilityTimeout: 60   # in seconds
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt PrintDLQ.Arn
+        maxReceiveCount: 3  # After 3 failed attempts, message goes to DLQ
+
+  # DynamoDB table for storing todos
+  TodoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: nate-to-do-list-db
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  # Lambda function for handling todo API endpoints
+  TodoApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: todo-api-function
+      Handler: server.handler
+      CodeUri: .
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TodoTable
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt PrintQueue.QueueName
+      Environment:
+        Variables:
+          DDB_TABLE: !Ref TodoTable
+          SQS_QUEUE_URL: !Ref PrintQueue
+      Events:
+        ApiEvent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TodoApi
+            Method: ANY
+            Path: /{proxy+}
+
+  # API Gateway for the todo service
+  TodoApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+        AllowHeaders:
+          - Content-Type
+      FailOnWarnings: true
+
+  # Lambda function for printing new todos via external API
+  PrintTodoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: print-todo-function
+      Handler: print.handler
+      CodeUri: .
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - SQSPollerPolicy:
+            QueueName: !GetAtt PrintQueue.QueueName
+      Environment:
+        Variables:
+          EXTERNAL_API_URL: "https://httpbin.org/post"  # Replace with actual external API URL
+      Events:
+        SqsEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt PrintQueue.Arn
+            BatchSize: 1
