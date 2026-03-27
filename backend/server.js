@@ -10,8 +10,10 @@ const SQS_QUEUE_URL = process.env.SQS_QUEUE_URL;
 export const handler = async (event) => {
     console.log('Received event:', JSON.stringify(event, null, 2));
 
-    const method = event.requestContext.http.httpMethod;
+    const method = event.requestContext.http.method;
     const path = event.rawPath;
+
+    console.log(`HTTP Method: ${method}, Path: ${path}`);
 
     try {
         if (method === 'GET' && path === '/todos') {
