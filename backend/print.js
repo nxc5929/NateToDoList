@@ -8,7 +8,7 @@ exports.handler = async (event) => {
         console.log('Processing todo:', messageBody);
 
         // Call external API to "print" the todo
-        const externalApiUrl = process.env.EXTERNAL_API_URL || 'https://httpbin.org/print'; // placeholder
+        const externalApiUrl = 'https://httpbin.org/print'; // placeholder
 
         try {
             const response = await fetch(externalApiUrl, {
