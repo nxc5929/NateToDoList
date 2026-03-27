@@ -20,7 +20,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::660388268510:role/github-action-deploy
-          aws-region: us-east-1
+          aws-region: us-east-2
 
       - name: Set up SAM CLI
         uses: aws-actions/setup-sam@v2
