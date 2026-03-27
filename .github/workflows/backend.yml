@@ -33,7 +33,7 @@ jobs:
         working-directory: backend
         run: |
           sam deploy \
-            --stack-name nate-to-do-list \
+            --stack-name email-service \
             --resolve-s3 \
             --capabilities CAPABILITY_IAM \
             --no-fail-on-empty-changeset
