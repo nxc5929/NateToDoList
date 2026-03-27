@@ -69,7 +69,7 @@ async function getTodos() {
         text: item.text.S,
         priority: item.priority.S,
         completed: item.completed.BOOL,
-        completedAt: item.completedAt.S
+        completedAt: item.completed ? item.completedAt.S : null
     }));
     return {
         statusCode: 200,
