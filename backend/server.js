@@ -16,7 +16,18 @@ export const handler = async (event) => {
     console.log(`HTTP Method: ${method}, Path: ${path}`);
 
     try {
-        if (method === 'GET' && path === '/todos') {
+        if (method === 'OPTIONS') {
+            return {
+                statusCode: 200,
+                headers: {
+                    'Access-Control-Allow-Origin': 'https://d1o1booqo5usav.cloudfront.net',
+                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Accept-Encoding, Accept-Language, DNT, User-Agent, X-CSRF-Token',
+                    'Access-Control-Max-Age': '86400'
+                },
+                body: ''
+            };
+        } else if (method === 'GET' && path === '/todos') {
             return await getTodos();
         } else if (method === 'POST' && path === '/todos') {
             const body = parseRequestBody(event);
@@ -32,7 +43,10 @@ export const handler = async (event) => {
             return {
                 statusCode: 404,
                 body: JSON.stringify({ error: 'Not Found' }),
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': 'https://d1o1booqo5usav.cloudfront.net'
+                }
             };
         }
     } catch (error) {
@@ -40,7 +54,10 @@ export const handler = async (event) => {
         return {
             statusCode: 500,
             body: JSON.stringify({ error: 'Internal Server Error' }),
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': 'https://d1o1booqo5usav.cloudfront.net'
+            }
         };
     }
 };
@@ -74,7 +91,10 @@ async function getTodos() {
     return {
         statusCode: 200,
         body: JSON.stringify(todos),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'https://d1o1booqo5usav.cloudfront.net'
+        }
     };
 }
 
@@ -108,7 +128,8 @@ async function createTodo(body) {
         statusCode: 201,
         body: JSON.stringify(todo),
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://d1o1booqo5usav.cloudfront.net'
         }
     };
 }
@@ -147,7 +168,8 @@ async function updateTodo(id, body) {
         statusCode: 200,
         body: JSON.stringify(todo),
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://d1o1booqo5usav.cloudfront.net'
         }
     };
 }
@@ -161,6 +183,8 @@ async function deleteTodo(id) {
     return {
         statusCode: 204,
         body: '',
-        headers: {}
+        headers: {
+            'Access-Control-Allow-Origin': 'https://d1o1booqo5usav.cloudfront.net'
+        }
     };
 }
