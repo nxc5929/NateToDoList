@@ -112,17 +112,25 @@ async function createTodo(body) {
 }
 
 async function updateTodo(id, body) {
-    const updateExpression = 'SET #text = :text, completed = :completed, completedAt = :completedAt';
-    const expressionAttributeNames = { '#text': 'text' };
+    const completedAt = body.completed ? new Date().toISOString() : null;
+    
     const expressionAttributeValues = {
-        ':completed': { BOOL: body.completed },
-        ':completedAt': { S: new Date().toISOString() },
+        ':completed': { BOOL: body.completed }
     };
+    
+    // Build the update expression based on whether we're setting completedAt or removing it
+    let updateExpression = 'SET completed = :completed';
+    if (body.completed) {
+        expressionAttributeValues[':completedAt'] = { S: completedAt };
+        updateExpression += ', completedAt = :completedAt';
+    } else {
+        updateExpression += ' REMOVE completedAt';
+    }
+    
     const command = new UpdateItemCommand({
         TableName: TABLE_NAME,
         Key: { id: { S: id } },
         UpdateExpression: updateExpression,
-        ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
         ReturnValues: 'ALL_NEW'
     });
@@ -130,7 +138,8 @@ async function updateTodo(id, body) {
     const todo = {
         id: result.Attributes.id.S,
         text: result.Attributes.text.S,
-        completed: result.Attributes.completed.BOOL
+        completed: result.Attributes.completed.BOOL,
+        completedAt: result.Attributes.completedAt ? result.Attributes.completedAt.S : null
     };
     return {
         statusCode: 200,
