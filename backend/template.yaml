@@ -73,12 +73,13 @@ Resources:
     Properties:
       CorsConfiguration:
         AllowOrigins:
-          - "*"
+          - "https://d1o1booqo5usav.cloudfront.net"
         AllowMethods:
           - GET
           - POST
           - PUT
           - DELETE
+          - OPTIONS
         AllowHeaders:
           - Content-Type
       FailOnWarnings: true
