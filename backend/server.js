@@ -108,8 +108,7 @@ async function createTodo(body) {
         statusCode: 201,
         body: JSON.stringify(todo),
         headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': 'https://d1o1booqo5usav.cloudfront.net'
+          'Content-Type': 'application/json'
         }
     };
 }
@@ -148,8 +147,7 @@ async function updateTodo(id, body) {
         statusCode: 200,
         body: JSON.stringify(todo),
         headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': 'https://d1o1booqo5usav.cloudfront.net'
+          'Content-Type': 'application/json'
         }
     };
 }

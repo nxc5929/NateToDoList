@@ -82,6 +82,19 @@ Resources:
           - OPTIONS
         AllowHeaders:
           - Content-Type
+          - Authorization
+          - X-Requested-With
+          - Accept
+          - Accept-Encoding
+          - Accept-Language
+          - DNT
+          - User-Agent
+          - X-CSRF-Token
+        AllowCredentials: false
+        ExposeHeaders:
+          - Content-Type
+          - X-Custom-Header
+        MaxAge: 86400
       FailOnWarnings: true
 
   # Lambda function for printing new todos via external API
