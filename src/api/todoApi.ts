@@ -31,7 +31,7 @@ export const todoApi = {
   // Update a todo (toggle completion)
   async updateTodo(id: string, updates: Partial<Todo>): Promise<Todo> {
     const response = await fetch(`${API_BASE_URL}/todos/${id}`, {
-      method: 'PATCH',
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
