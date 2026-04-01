@@ -1,6 +1,6 @@
-const https = require('https');
+import https from 'https';
 
-exports.handler = async (event) => {
+export async function handler(event) {
     console.log('Received SQS event:', JSON.stringify(event, null, 2));
 
     for (const record of event.Records) {
@@ -35,4 +35,4 @@ exports.handler = async (event) => {
         statusCode: 200,
         body: JSON.stringify('Todos printed successfully'),
     };
-};
+}
