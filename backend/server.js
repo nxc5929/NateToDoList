@@ -27,8 +27,12 @@ export const handler = async (event) => {
                 },
                 body: ''
             };
-        } else if (method === 'GET' && path === '/todos') {
-            return await getTodos();
+        } else if (method === 'GET' && path.startsWith('/todos')) {
+          const postId = path.split('/').length > 2 ? path.split('/')[2] : null;
+          if(postId){
+            return await updateTodo(postId, { completed: true });
+          } 
+          return await getTodos();
         } else if (method === 'POST' && path === '/todos') {
             const body = parseRequestBody(event);
             return await createTodo(body);
